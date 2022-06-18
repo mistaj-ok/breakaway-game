@@ -20,6 +20,10 @@ var brickHeight = Math.floor((canvas.height * .35) / numRows);
 const xGap = (canvas.width * .2) / (bPerRow + 1);
 const yGap = (canvas.height * .1) / (numRows);
 
+// drawing ball function
+var ballRadius = 10;
+var score = 0;
+
 for (var i=0; i<numRows;i++) {
     bricks[i] = [];
     for (var j=0; j<bPerRow;j++) {
@@ -31,31 +35,16 @@ for (var i=0; i<numRows;i++) {
     }
 }
 
-// drawing ball function
-var ballRadius = 10;
+
 
 function draw() {
     ctx.clearRect(0,0, canvas.width, canvas.height);
     drawBricks(3,2);
     drawBall();
     drawPaddle();
+    drawScore();
     collisionDetection();   // brick detection
-    sideCollision();        // side detection
-    
-    // if (y + dy < ballRadius) {
-    //     dy = -dy;
-    // } else if(y + dy > canvas.height-ballRadius) {
-    //     if(x > paddleX && x < paddleX + paddleWidth) {
-    //         dy = -dy;
-    //     }
-    //     else {
-    //         alert("GAME OVER");
-    //         document.location.reload();
-    //         clearInterval(interval);
-    //     }
-    // }
-
-    // checkCollision();
+    checkCollision();       // includes paddle, and side boundary detection
     movePaddle();
     x+=dx;
     y+=dy;
@@ -88,10 +77,6 @@ function drawBricks() {
                 var brickY =  (i+1) * yGap + (brickHeight * i);
                 bricks[i][j].x = brickX;
                 bricks[i][j].y = brickY;
-
-                // console.log("row: "+i+" col: "+j + " | brickY: "+brickY);
-            // console.log("brickHeight: "+brickHeight);
-
                 ctx.beginPath();
                 ctx.rect( brickX, brickY, brickWidth, brickHeight);
                 ctx.fillStyle = "#0084DD";
@@ -103,6 +88,12 @@ function drawBricks() {
     
 }
 
+
+function drawScore() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "Chartreuse";
+    ctx.fillText("Score: "+score, canvas.width / 2.1 , 12);
+}
 
 function checkCollision() {
     topCollision();
@@ -118,13 +109,16 @@ function topCollision() {
 
 function bottomCollision() {
     if (y + dy + ballRadius > canvas.height) {// dy is positive when moving down
+        if (x > paddleX && x < paddleX + paddleWidth) {
+            if (y = y - paddleHeight) {
+                dy = -dy;
+            }
+        } else  {
         alert("game over");
         document.location.reload();
         clearInterval(myInterval);
-    } else {
-        if(x > paddleX && x < paddleX + paddleWidth) {
-            dy = -dy;
         }
+
     }
 }
 
@@ -143,6 +137,7 @@ function collisionDetection() {
                     console.log("IMPACT: ");
                     dy = -dy;
                     b.status = 0;
+                    score ++;
                 }
 
 
